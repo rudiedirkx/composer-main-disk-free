@@ -1,0 +1,22 @@
+{
+    "name": "rdx/composer-main-disk-free",
+    "description": "read main disk unused %, and other dirs size",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "rdx\\maindiskfree\\": "src/"
+        }
+    },
+    "bin": [
+        "bin/main-disk-free"
+    ],
+    "authors": [
+        {
+            "name": "Rudie Dirkx",
+            "email": "github@hotblocks.nl"
+        }
+    ],
+    "require": {
+    }
+}
