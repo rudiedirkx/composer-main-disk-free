@@ -1,7 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-$home = rtrim(getenv('HOME'), '\\/');
+$osUser = posix_getpwuid(posix_geteuid());
+$home = rtrim($osUser['dir'], '\\/');
 
 $moreDirs = array_slice($_SERVER['argv'], 1);
 
