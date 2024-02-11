@@ -15,7 +15,7 @@ if (!preg_match('#(\d+)% +/\s#', "$output ", $match)) {
 $curWhen = date('Y-m-d');
 $curMainPct = (int) $match[1];
 $curMores = array_map(function($dir) {
-	$output = `du -s $dir`;
+	$output = `du -s $dir 2>/dev/null`;
 	$bytes = (int) trim($output);
 	return ceil($bytes / 1024);
 }, $moreDirs);
