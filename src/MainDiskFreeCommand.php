@@ -4,6 +4,7 @@ namespace rdx\maindiskfree;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\SingleCommandApplication;
 
@@ -12,6 +13,7 @@ class MainDiskFreeCommand extends SingleCommandApplication {
 	protected function configure() {
 		$this->setName('main-disk-free');
 		$this->addArgument('moredirs', InputArgument::IS_ARRAY, "Any directories to track size with `du`");
+		$this->addOption('min-notify', null, InputOption::VALUE_REQUIRED, "Only notify (print) if the main disk is at least this percentage full");
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) : int {
@@ -23,10 +25,12 @@ class MainDiskFreeCommand extends SingleCommandApplication {
 
 		$moreDirs = $input->getArgument('moredirs');
 
+		$minNotify = (int) $input->getOption('min-notify');
+
 		$output = `df -h`;
 		if (!preg_match('#(\d+)% +/\s#', "$output ", $match)) {
 			echo trim($output) . "\n";
-			exit(1);
+			return 1;
 		}
 
 		$curWhen = date('Y-m-d');
@@ -51,11 +55,12 @@ class MainDiskFreeCommand extends SingleCommandApplication {
 			$prevMores = [];
 		}
 
-		$notify = $curMainPct != $prevMainPct;
-		if ($notify || $curMores != $prevMores) {
+		$changed = $curMainPct != $prevMainPct;
+		if ($changed || $curMores != $prevMores) {
 			$history[$curWhen] = [$curMainPct, ...$curMores];
 			file_put_contents($file, json_encode($history) . "\n");
 
+			$notify = !$minNotify || $curMainPct >= $minNotify;
 			if ($notify) {
 				echo "$curMainPct%\n";
 				if ($prevMainPct) {
